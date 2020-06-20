@@ -1,0 +1,34 @@
+from urllib.request import urlretrieve
+import pandas as pd
+import re
+from jieba.analyse import extract_tags
+import jieba
+
+df = pd.read_csv("icook_japan_website.csv")
+c = ["成分"]
+df_clear = pd.DataFrame(columns= c)
+
+# 下載jieba額外字典
+# url = "https://raw.githubusercontent.com/fxsjy/jieba/master/extra_dict/dict.txt.big"
+# urlretrieve(url,"bigdict.txt")
+
+# 讀入額外字典
+jieba.load_userdict("bigdict.txt")
+
+for n in range(len(df)):
+    content = df.iat[n,1]
+    r1 = '[a-zA-Z0-9’!"#$%&\'()*+,-./:;<=>?@，。?★、…【】《》？“”‘’！[\\]^_`{|}~]+'
+    string = re.sub(r1," ",content)
+
+    string2 = string.replace("】","").replace("【","").replace("／","").replace("、","").replace("，","").replace("！","").\
+            replace("。","").replace("～","").replace("「","").replace("」","").replace("《","").replace("》","").\
+            replace("：","").replace("?","").replace("％","").replace("…","").replace(" ","").replace("\n","").\
+            replace("  ","").replace("；","").replace(".","").replace("①","").replace("②","").replace("（","").\
+            replace(")","").replace("∼","").replace("）","").replace("？","").replace("→","").replace("(","").replace("%","")\
+            .replace("『","").replace("』","").replace("ヽ✿ﾟ▽ﾟノ","").replace("d'･∀･b","").replace("⌒o⌒","").replace("/","").\
+            replace("⌒⌒","").replace("･∀･","").replace("°","").replace("\r\n","").replace("〔","").replace("〕","")
+
+    cut = " ".join(jieba.cut(string2))
+
+    s = pd.Series([cut], index=c)
+    df_clear = df_clear.append(s, ignore_index=True)
