@@ -1,0 +1,41 @@
+import requests
+from bs4 import BeautifulSoup
+
+import pandas as pd
+
+page = 1
+c = ["標題","成分","網站","圖片"]
+df = pd.DataFrame(columns= c)
+
+while True:
+    cookies = {"Cookies":'__cfduid=d846e64dfbbfbefe5b5ade183e6b863661559593268; CF-IPCountry=TW; _pubcid=60e5fd54-4f84-4398-b32c-eed1ff6ae2c8; _gcl_au=1.1.733811455.1559593274; __auc=761473b516b1f00caad54c13206; _ga=GA1.2.2011525926.1559593274; _gid=GA1.2.2093069804.1559593274; __gads=ID=aa4573abad8b3bbe:T=1559593272:S=ALNI_MaKap5Vj7Ku6ElB0Tcbhjzw2OyImw; _fbp=fb.1.1559593275237.1293702897; dable_uid=17126474.1559356381577; prevent_auto_login=true; latested-vip-feature=undefined/undefined/undefined; __BWfp=c1559638366359xf70033beb; remember_user_token=W1syODU5MTgxXSwiJDJhJDEwJDROOFJhMHBJQ2ZMYzlNUGhiZjJ6NXUiLCIxNTU5NjM4NTQzLjQ0Mzg5OTkiXQ%3D%3D--fa5f00ef4b7ed9643590349f58df64b816e60860; icook_user_info=Q1FETVBDZEdiWEw2eFllUlorN2o4UU9TWnNEcnVCK0N2Z3NybXN0cVFaS2p0alVnL3B2Q2dlVmpacGpKMVZtRjlhMmFQQXZyRGJPUmE2L0p0RXlmRGxjeFRWcnlwa3VXSFkxQ2xwK21GcThYa29uUldhNjFJUXovOVBxZW1NUFJKc2ZXdjhqUmxMdG1VdVJkcW9ya2NEWGhrL0oyKzduU2J2MTZnS21ZS3VUMzNSUEFlQnNIaVp3RFNxK1RweWhkMXhtcnRQckxTWjlKZEl5WTd1RlpNeC9aZVY2aGIyTEw5VExodXVjaW5IREh5SFoyMjFtdmt3UXJqa2wxL2tyOC0tNXZOaWg3WWFkYm5XNk9PVm1pV0czdz09--8d2a3f696a8d66cdfdc454f84cf73dbd784f75ac; truvid_protected={"fraud":false,"level":2,"geo":"TW"}; _td=21e925de-c455-479a-b3ae-ca19f6c40471; GED_PLAYLIST_ACTIVITY=W3sidSI6Im82S1EiLCJ0c2wiOjE1NTk2Mzk4MTIsIm52IjoxLCJ1cHQiOjE1NTk2Mzk3MzIsImx0IjoxNTU5NjM5ODExfV0.; __asc=da49289f16b25ed88f4b3f3d808; AMP_TOKEN=%24NOT_FOUND; sent-cid=1559709452; visitor=GA1.2.2011525926.1559593274; fbm_273393289342171=base_domain=.icook.tw; XSRF-TOKEN=Qm9oyDpoU90XWXuxkEAfjodo0Kn1r7dC4KNd2HIXG6gcA%2F5vD7N2Kit2LikCXP53NJeAVKCh0HdMPB5AT%2BF%2BgQ%3D%3D; _icook_sess=RmhqNmVTRHZMZnN5Y0RLaHpDOGNldWFtcDRXRWNxYW9vUW1XRis0KzUvVUlydjRRVmVianFYN296cGFiM3N3d3RXMk1HdWNvempZdnJuMm9NYWpGa3ZBTEpyOEtmWHlYT1pBV1R6dGsvemZ2ZCtBUlNQZkdra2RHTi9rQ3M3RHVZOU5WRzAxVkU2dW1yZTNvQy9lTHBrSWdpNXR2U0Zuc3RpUU1wTmsva25YNVdPMkhnYkQ4MnF0WUZTcElsNHRrbHVGVEhtaXMwQTZpcUVubjJhUjBjbGh5cmh1OERiZzM3ME5EQkI3ZDQzZFV3VUNrak8xMGxqbGhEdVJrVkJnL2t1WFIxVUgvRFYzTDBJdzdsK0xyb1pnN1ZobGZFc3R0ZUQyWk5ETHRhdWdQQThEb3dVRjh4MitqZnJJWitlQWtHK0pzejVEbEM1ejhaRjVRTnNta3YrTGQ1RWZma2h6WDc2M0xSb28yRHRrPS0tT21yMWVoQk4xT3lQbHE5RFc1N1BqUT09--8a37a145f52b35ee9b57b5a1e5eb0b79111ffca3; fbsr_273393289342171=fR988JxPLjGjPiU1S8DrjYnxuphFiFGrt5itFeC9uIc.eyJjb2RlIjoiQVFCWENyNXpFQXZMekp4LUY2SWlZWU5UMTJ1Q1VZdjJ6YlFOdFByMlUwbWRWNUdEc0hfSXh6bm1BN3ZKQnhSdnduekFzV1E3dEFkbW9vcXVhUjFKaWczUVpTSlF3SVJrOEVkUDNldjFSUHRRenF0SGtTWVhJVzZTaDZoV2JHQ1RENmFWRHVwNFd0ZFN2UXRMYzdKSk15aHlPbzYtNU9aLXdEeE1scGtLMVNMV1pxUDA5cVEzSmdtSE5hemhRQW1yY2dUQVMySWdMaXJlSkcxcUk1TE5WOXVERlQ3TkNhcTlEVERWa2JDR2hua1VfdTZsLWxndmtGQmRDX25IM3FrNDlHNmY0UXJOYjAycGhJdlMzaHdBNHdRdVBGU01FNWx2bW5kRU9TMm90Sl9ZSi1QSXRmbHlOTTVoc1JnQkZLanU5dG8tXzF6blZaaVBWUmhrZC1ZNWJPXzAiLCJ1c2VyX2lkIjoiMjIzNjk2NjU5MzA2MTU2NCIsImFsZ29yaXRobSI6IkhNQUMtU0hBMjU2IiwiaXNzdWVkX2F0IjoxNTU5NzEwMTYyfQ'}
+    headers = {'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"}
+    url = "https://icook.tw/categories/60?page=" + str(page)
+
+    html = requests.get(url, headers=headers, cookies=cookies)
+
+
+    if str(html) == "<Response [404]>":
+        break
+
+    content = BeautifulSoup(html.text, from_encoding="utf-8")
+    news = content.find_all("div",{"class" : "category-browse-recipe"})
+
+    i = 1
+    for n in news:
+        title = n.find("a", class_="browse-recipe-name")
+        ingrediants = n.find("p", class_="browse-recipe-content-ingredient")
+        websites = n.find("a", class_="browse-recipe-touch-link")
+        pics = n.find("img", class_="browse-recipe-cover-img")
+        print(title.text, ingrediants.text, "https://icook.tw" + websites["href"], pics["src"])
+        i = i + 1
+        s = pd.Series([title.text, ingrediants.text, "https://icook.tw" + websites["href"], pics["src"]], index=c)
+        df = df.append(s, ignore_index=True)
+
+
+
+
+    page = page + 1
+    print(page)
+
+df.to_csv("icook_japan_website.csv", encoding="utf-8", index=False)
